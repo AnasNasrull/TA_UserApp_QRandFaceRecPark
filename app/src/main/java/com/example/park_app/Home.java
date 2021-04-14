@@ -307,7 +307,7 @@ public class Home extends AppCompatActivity implements AdapterView.OnItemSelecte
 
         @Override
         protected String doInBackground(String... strings) {
-            for(int i=0; i<=10; i++){
+            do {
                 FirebaseDatabase database = FirebaseDatabase.getInstance();
                 DatabaseReference myRef = database.getReference("Data_UID");
                 FirebaseUser user = fAuth.getCurrentUser();
@@ -320,11 +320,7 @@ public class Home extends AppCompatActivity implements AdapterView.OnItemSelecte
                     public void onCancelled(DatabaseError databaseError) {
                     }
                 });
-
-                if (nim!=null) {
-                    break;
-                }
-            }
+            } while (nim==null);
 
             return nim;
         }

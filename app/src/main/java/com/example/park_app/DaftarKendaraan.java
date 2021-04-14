@@ -143,6 +143,7 @@ public class DaftarKendaraan extends AppCompatActivity {
 
     public void onBackPressed() {
         Intent intent = new Intent(DaftarKendaraan.this, GenerateQrCode.class);
+        intent.putExtra("nim", nim);
         startActivity(intent);
     }
 }
