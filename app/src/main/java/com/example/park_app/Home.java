@@ -1,8 +1,10 @@
 package com.example.park_app;
 
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -41,7 +43,7 @@ public class Home extends AppCompatActivity implements AdapterView.OnItemSelecte
 
     private static final String TAG = Home.class.getSimpleName();
 
-    String nim, id, plat;
+    String nim=null, id, plat;
 
     ArrayList<String> item_plat;
     ArrayAdapter<String> arrayAdpter;
@@ -49,6 +51,8 @@ public class Home extends AppCompatActivity implements AdapterView.OnItemSelecte
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        new LoadData().execute();
 
         fAuth = FirebaseAuth.getInstance();
 
@@ -67,7 +71,7 @@ public class Home extends AppCompatActivity implements AdapterView.OnItemSelecte
             }
         };
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        /*FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("Data_UID");
         FirebaseUser user = fAuth.getCurrentUser();
         myRef.child(user.getUid()).addValueEventListener(new ValueEventListener() {
@@ -78,7 +82,7 @@ public class Home extends AppCompatActivity implements AdapterView.OnItemSelecte
             @Override
             public void onCancelled(DatabaseError databaseError) {
             }
-        });
+        });*/
 
         Scan = findViewById(R.id.scanqr);
         QrKendaraan = findViewById(R.id.qrkendaraan);
@@ -288,5 +292,48 @@ public class Home extends AppCompatActivity implements AdapterView.OnItemSelecte
 
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+    }
+
+    public class LoadData extends AsyncTask<String, String, String> {
+        ProgressDialog dialog = new ProgressDialog(Home.this);
+
+        @Override
+        protected void onPreExecute() {
+            dialog.setMessage("Loading...");
+            dialog.setCancelable(false);
+            dialog.show();
+            super.onPreExecute();
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            for(int i=0; i<=10; i++){
+                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                DatabaseReference myRef = database.getReference("Data_UID");
+                FirebaseUser user = fAuth.getCurrentUser();
+                myRef.child(user.getUid()).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        nim = dataSnapshot.child("nim").getValue().toString();
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                    }
+                });
+
+                if (nim!=null) {
+                    break;
+                }
+            }
+
+            return nim;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            if(dialog.isShowing())
+                dialog.dismiss();
+        }
     }
 }

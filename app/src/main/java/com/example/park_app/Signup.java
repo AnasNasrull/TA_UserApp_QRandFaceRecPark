@@ -162,23 +162,6 @@ public class Signup extends AppCompatActivity {
         });
         //btSignUp2.setEnabled(false);
 
-        Nama.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable arg0) {
-                imgPath = null;
-                et_image.setText("");
-                //enableSubmitIfReady();
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-        });
-
         destination = new File(Constants.getDLibDirectoryPath() + "/temp.jpg");
 
         btSignUp2.setOnClickListener(new View.OnClickListener() {
@@ -269,6 +252,7 @@ public class Signup extends AppCompatActivity {
                             pengguna.put("Nama", nama);
                             pengguna.put("NIM", nim);
                             pengguna.put("Prodi", prodi);
+                            pengguna.put("plat", "-");
 
                             HashMap<String, String> id = new HashMap();
                             id.put("nim", nim);

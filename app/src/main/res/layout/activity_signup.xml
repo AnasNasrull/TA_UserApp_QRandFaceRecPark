@@ -20,8 +20,7 @@
         android:layout_marginBottom="5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Nama"
-        android:inputType="text" />
+        android:hint="Nama"/>
 
     <EditText
         android:id="@+id/et_nim"
