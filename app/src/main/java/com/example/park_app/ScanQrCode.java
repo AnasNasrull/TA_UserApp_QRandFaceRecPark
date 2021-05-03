@@ -65,20 +65,20 @@ public class ScanQrCode extends AppCompatActivity implements ZXingScannerView.Re
         //alert1.show();
 
         if (rawResult.getText().equals("Parkir Gedung C & D")) {
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            final FirebaseDatabase database = FirebaseDatabase.getInstance();
             final DatabaseReference myRef = database.getReference("Data_Pengguna");
 
             Date c = Calendar.getInstance().getTime();
             @SuppressLint("SimpleDateFormat") SimpleDateFormat dt = new SimpleDateFormat("yyyyMMdd");
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT+7:00"));
-            String tm = new SimpleDateFormat("HHmmss").format(cal.getTime());
-            String tgl = dt.format(c);
+            final String tm = new SimpleDateFormat("HHmmss").format(cal.getTime());
+            final String tgl = dt.format(c);
             String chKey = tgl + "" + tm;
             @SuppressLint("SimpleDateFormat") SimpleDateFormat ndt = new SimpleDateFormat("dd-MM-yyyy");
             String ntgl = ndt.format(c);
             String wkt_msk = new SimpleDateFormat("HH:mm:ss").format(cal.getTime());
 
-            HashMap<String, String> history = new HashMap();
+            final HashMap<String, String> history = new HashMap();
             history.put("tanggal", ntgl);
             history.put("waktu_masuk", wkt_msk);
             history.put("waktu_keluar", "-");
@@ -104,6 +104,19 @@ public class ScanQrCode extends AppCompatActivity implements ZXingScannerView.Re
                     public void onCancelled(DatabaseError databaseError) {
                     }
                 });
+
+            final DatabaseReference myRef2 = FirebaseDatabase.getInstance().getReference("Kendaraan");
+            myRef2.child("Data_Plat").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Map<String, Object> postStatus = new HashMap<String, Object>();
+                    postStatus.put("status", "on");
+                    myRef2.child("Data_Plat").child(plat).updateChildren(postStatus);
+                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
             //}
 
             final DatabaseReference Ref = database.getReference("Parkir");

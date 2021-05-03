@@ -43,7 +43,7 @@ public class Home extends AppCompatActivity implements AdapterView.OnItemSelecte
 
     private static final String TAG = Home.class.getSimpleName();
 
-    String nim=null, id, plat, status=null;
+    String nim=null, id, plat=null, status=null;
 
     ArrayList<String> item_plat;
     ArrayAdapter<String> arrayAdpter;
@@ -153,12 +153,22 @@ public class Home extends AppCompatActivity implements AdapterView.OnItemSelecte
                                             Toast.makeText(getApplicationContext(), "Plat Kendaraan Tidak Terdaftar!", Toast.LENGTH_SHORT).show();
                                             dialogInterface.cancel();
                                         } else {
-                                            //String kdrPribadi = "bukan";
-                                            Intent intent = new Intent(Home.this, ScanQrCode.class);
-                                            intent.putExtra("nim", nim);
-                                            intent.putExtra("plat", plat);
-                                            //intent.putExtra("kepemilikan", kdrPribadi);
-                                            startActivity(intent);
+                                            for (DataSnapshot chilSnapshot:snapshot.getChildren()) {
+                                                String data = chilSnapshot.child("status").getValue().toString();
+                                                if (data.equals("-")) {
+                                                    //String kdrPribadi = "bukan";
+                                                    Intent intent = new Intent(Home.this, ScanQrCode.class);
+                                                    intent.putExtra("nim", nim);
+                                                    intent.putExtra("plat", plat);
+                                                    //intent.putExtra("kepemilikan", kdrPribadi);
+                                                    startActivity(intent);
+                                                } else if (data.equals("on")){
+                                                    Toast.makeText(getApplicationContext(), "Kendaraan Sudah Digunakan Orang Lain!", Toast.LENGTH_SHORT).show();
+                                                    dialogInterface.cancel();
+                                                    break;
+                                                }
+                                            }
+
                                         }
                                     }
                                     public void onCancelled(@NonNull DatabaseError error) {
@@ -169,11 +179,34 @@ public class Home extends AppCompatActivity implements AdapterView.OnItemSelecte
                                 plat = spinner.getSelectedItem().toString();
                                 //kdrPribadi = "iya";
 
-                                Intent intent = new Intent(Home.this, ScanQrCode.class);
+                                DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("Kendaraan");
+                                myRef.child("Data_Plat").child(plat).addValueEventListener(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        String data = dataSnapshot.child("status").getValue().toString();
+
+                                        if (data.equals("-")) {
+                                            //String kdrPribadi = "bukan";
+                                            Intent intent = new Intent(Home.this, ScanQrCode.class);
+                                            intent.putExtra("nim", nim);
+                                            intent.putExtra("plat", plat);
+                                            //intent.putExtra("kepemilikan", kdrPribadi);
+                                            startActivity(intent);
+                                        } else if (data.equals("on")) {
+                                            Toast.makeText(getApplicationContext(), "Kendaraan Sudah Digunakan Orang Lain!", Toast.LENGTH_SHORT).show();
+                                            dialogInterface.cancel();
+                                        }
+                                    }
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+                                    }
+                                });
+
+                                /*Intent intent = new Intent(Home.this, ScanQrCode.class);
                                 intent.putExtra("nim", nim);
                                 intent.putExtra("plat", plat);
                                 //intent.putExtra("kepemilikan", kdrPribadi);
-                                startActivity(intent);
+                                startActivity(intent);*/
                             }
                         }
                     });
@@ -248,21 +281,18 @@ public class Home extends AppCompatActivity implements AdapterView.OnItemSelecte
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         if (item_plat.get(i).equals("Masukkan plat manual")) {
-            InputPlat.setVisibility(View.VISIBLE);
-
             plat = InputPlat.getText().toString();
             if (TextUtils.isEmpty(InputPlat.getText().toString().trim())) {
                 Toast.makeText(getApplicationContext(), "Masukkan Plat Kendaraan!", Toast.LENGTH_SHORT).show();
                 return;
             }
         } else {
-            InputPlat.setVisibility(View.GONE);
             plat = item_plat.get(i);
         }
-        Intent intent = new Intent(Home.this, ScanQrCode.class);
+        /*Intent intent = new Intent(Home.this, ScanQrCode.class);
         intent.putExtra("nim", nim);
         intent.putExtra("plat", plat);
-        startActivity(intent);
+        startActivity(intent);*/
     }
 
     @Override

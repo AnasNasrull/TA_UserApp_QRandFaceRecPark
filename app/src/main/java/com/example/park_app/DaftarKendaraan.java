@@ -130,6 +130,7 @@ public class DaftarKendaraan extends AppCompatActivity {
 
         pengguna.clear();
         pengguna.put("plat",Plat.getText().toString().trim());
+        pengguna.put("status", "-");
 
         myRef.child("Data_Plat").child(Plat.getText().toString().trim()).setValue(pengguna).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
