@@ -38,7 +38,7 @@ public class ScanQrCode extends AppCompatActivity implements ZXingScannerView.Re
 
         nim = getIntent().getStringExtra("nim");
         plat = getIntent().getStringExtra("plat");
-        kepemilikan = getIntent().getStringExtra("kepemilikan");
+        //kepemilikan = getIntent().getStringExtra("kepemilikan");
     }
 
     @Override
@@ -92,7 +92,7 @@ public class ScanQrCode extends AppCompatActivity implements ZXingScannerView.Re
                 }
             });
 
-            if (kepemilikan.equals("bukan")) {
+            //if (kepemilikan.equals("bukan")) {
                 myRef.child(nim).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -104,7 +104,7 @@ public class ScanQrCode extends AppCompatActivity implements ZXingScannerView.Re
                     public void onCancelled(DatabaseError databaseError) {
                     }
                 });
-            }
+            //}
 
             final DatabaseReference Ref = database.getReference("Parkir");
             Ref.child(tgl).child(tm).setValue(history).addOnSuccessListener(new OnSuccessListener<Void>() {

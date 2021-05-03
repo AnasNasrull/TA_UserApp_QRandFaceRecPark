@@ -43,7 +43,7 @@ public class Home extends AppCompatActivity implements AdapterView.OnItemSelecte
 
     private static final String TAG = Home.class.getSimpleName();
 
-    String nim=null, id, plat;
+    String nim=null, id, plat, status=null;
 
     ArrayList<String> item_plat;
     ArrayAdapter<String> arrayAdpter;
@@ -92,105 +92,108 @@ public class Home extends AppCompatActivity implements AdapterView.OnItemSelecte
         Scan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final AlertDialog.Builder dialog = new AlertDialog.Builder(Home.this);
-                final View mView = getLayoutInflater().inflate(R.layout.popup_view_dialog, null);
+                if (status.equals("-")) {
+                    final AlertDialog.Builder dialog = new AlertDialog.Builder(Home.this);
+                    final View mView = getLayoutInflater().inflate(R.layout.popup_view_dialog, null);
 
-                //Mengeset judul dialog
-                dialog.setTitle("Pilih Plat Kendaraan");
-                item_plat = new ArrayList<>();
-                item_plat.add("Masukkan plat manual");
+                    //Mengeset judul dialog
+                    dialog.setTitle("Pilih Plat Kendaraan");
+                    item_plat = new ArrayList<>();
+                    item_plat.add("Masukkan plat manual");
 
-                InputPlat = mView.findViewById(R.id.dlg_plat);
+                    InputPlat = mView.findViewById(R.id.dlg_plat);
 
-                FirebaseDatabase database = FirebaseDatabase.getInstance();
-                final DatabaseReference myRef = database.getReference("Kendaraan");
+                    FirebaseDatabase database = FirebaseDatabase.getInstance();
+                    final DatabaseReference myRef = database.getReference("Kendaraan");
 
-                final Spinner spinner = mView.findViewById(R.id.spin);
-                //spinner.setOnItemSelectedListener(Home.this);
+                    final Spinner spinner = mView.findViewById(R.id.spin);
+                    //spinner.setOnItemSelectedListener(Home.this);
 
-                arrayAdpter = new ArrayAdapter<>(Home.this, android.R.layout.simple_spinner_item, item_plat);
-                arrayAdpter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spinner.setAdapter(arrayAdpter);
+                    arrayAdpter = new ArrayAdapter<>(Home.this, android.R.layout.simple_spinner_item, item_plat);
+                    arrayAdpter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    spinner.setAdapter(arrayAdpter);
 
-                myRef.child("Data_Pemilik").child(nim).addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        for (DataSnapshot chilSnapshot:dataSnapshot.getChildren()) {
-                            String data = chilSnapshot.child("plat").getValue().toString();
-                            item_plat.add(data);
-                        }
-
-                        arrayAdpter.notifyDataSetChanged();
-                        //----------------------------
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError error) {
-                        //Log.w(TAG, "Failed to read value.", error.toException());
-                    }
-                });
-
-
-
-                dialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface dialogInterface, int i) {
-                        String kdrPribadi="";
-                        if (spinner.getSelectedItem().equals("Masukkan plat manual")) {
-                            plat = InputPlat.getText().toString();
-
-                            if (TextUtils.isEmpty(InputPlat.getText().toString().trim())) {
-                                Toast.makeText(getApplicationContext(), "Masukkan Plat Kendaraan!", Toast.LENGTH_SHORT).show();
-                                return;
+                    myRef.child("Data_Pemilik").child(nim).addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            for (DataSnapshot chilSnapshot:dataSnapshot.getChildren()) {
+                                String data = chilSnapshot.child("plat").getValue().toString();
+                                item_plat.add(data);
                             }
 
-                            Query query = FirebaseDatabase.getInstance().getReference("Kendaraan").child("Data_Plat").orderByKey().equalTo(plat);
-                            query.addListenerForSingleValueEvent(new ValueEventListener() {
-                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                    boolean find;
-                                    find = snapshot.getValue() != null;
-                                    if (!find) {
-                                        Toast.makeText(getApplicationContext(), "Plat Kendaraan Tidak Terdaftar!", Toast.LENGTH_SHORT).show();
-                                        dialogInterface.cancel();
-                                    } else {
-                                        String kdrPribadi = "bukan";
-                                        Intent intent = new Intent(Home.this, ScanQrCode.class);
-                                        intent.putExtra("nim", nim);
-                                        intent.putExtra("plat", plat);
-                                        intent.putExtra("kepemilikan", kdrPribadi);
-                                        startActivity(intent);
-                                    }
-                                }
-                                public void onCancelled(@NonNull DatabaseError error) {
-
-                                }
-                            });
-                        } else {
-                            plat = spinner.getSelectedItem().toString();
-                            kdrPribadi = "iya";
-
-                            Intent intent = new Intent(Home.this, ScanQrCode.class);
-                            intent.putExtra("nim", nim);
-                            intent.putExtra("plat", plat);
-                            intent.putExtra("kepemilikan", kdrPribadi);
-                            startActivity(intent);
+                            arrayAdpter.notifyDataSetChanged();
                         }
-                    }
-                });
 
-                dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
+                        @Override
+                        public void onCancelled(DatabaseError error) {
+                            //Log.w(TAG, "Failed to read value.", error.toException());
+                        }
+                    });
 
-                dialog.setCancelable(false);
 
-                //Menampilkan custom dialog
-                dialog.setView(mView);
-                AlertDialog dlg = dialog.create();
-                dlg.show();
+
+                    dialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(final DialogInterface dialogInterface, int i) {
+                            //String kdrPribadi="";
+                            if (spinner.getSelectedItem().equals("Masukkan plat manual")) {
+                                plat = InputPlat.getText().toString();
+
+                                if (TextUtils.isEmpty(InputPlat.getText().toString().trim())) {
+                                    Toast.makeText(getApplicationContext(), "Masukkan Plat Kendaraan!", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+
+                                Query query = FirebaseDatabase.getInstance().getReference("Kendaraan").child("Data_Plat").orderByKey().equalTo(plat);
+                                query.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                        boolean find;
+                                        find = snapshot.getValue() != null;
+                                        if (!find) {
+                                            Toast.makeText(getApplicationContext(), "Plat Kendaraan Tidak Terdaftar!", Toast.LENGTH_SHORT).show();
+                                            dialogInterface.cancel();
+                                        } else {
+                                            //String kdrPribadi = "bukan";
+                                            Intent intent = new Intent(Home.this, ScanQrCode.class);
+                                            intent.putExtra("nim", nim);
+                                            intent.putExtra("plat", plat);
+                                            //intent.putExtra("kepemilikan", kdrPribadi);
+                                            startActivity(intent);
+                                        }
+                                    }
+                                    public void onCancelled(@NonNull DatabaseError error) {
+
+                                    }
+                                });
+                            } else {
+                                plat = spinner.getSelectedItem().toString();
+                                //kdrPribadi = "iya";
+
+                                Intent intent = new Intent(Home.this, ScanQrCode.class);
+                                intent.putExtra("nim", nim);
+                                intent.putExtra("plat", plat);
+                                //intent.putExtra("kepemilikan", kdrPribadi);
+                                startActivity(intent);
+                            }
+                        }
+                    });
+
+                    dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    });
+
+                    dialog.setCancelable(false);
+
+                    //Menampilkan custom dialog
+                    dialog.setView(mView);
+                    AlertDialog dlg = dialog.create();
+                    dlg.show();
+                } else {
+                    Toast.makeText(Home.this, "Anda Belum Keluar Dari Tempat Parkir!\n", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -307,8 +310,8 @@ public class Home extends AppCompatActivity implements AdapterView.OnItemSelecte
 
         @Override
         protected String doInBackground(String... strings) {
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
             do {
-                FirebaseDatabase database = FirebaseDatabase.getInstance();
                 DatabaseReference myRef = database.getReference("Data_UID");
                 FirebaseUser user = fAuth.getCurrentUser();
                 myRef.child(user.getUid()).addValueEventListener(new ValueEventListener() {
@@ -321,6 +324,17 @@ public class Home extends AppCompatActivity implements AdapterView.OnItemSelecte
                     }
                 });
             } while (nim==null);
+
+            DatabaseReference Ref = database.getReference("Data_Pengguna");
+            Ref.child(nim).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    status = dataSnapshot.child("plat").getValue().toString();
+                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
 
             return nim;
         }
